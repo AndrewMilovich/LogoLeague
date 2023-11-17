@@ -11,8 +11,15 @@ services:
       - postgres
     networks:
       - dev-networks
-    env_file:
-      - .env
+    environment:
+      PORT: ${PORT}
+      RIOT_API_KEY: ${RIOT_API_KEY}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_TYPE: ${DB_TYPE}
 
   postgres:
     image: postgres:13-alpine
@@ -23,8 +30,15 @@ services:
       - '5432:5432'
     networks:
       - dev-networks
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_TYPE: ${DB_TYPE}
+      PORT: ${PORT}
+      RIOT_API_KEY: ${RIOT_API_KEY}
 
 volumes:
   dev-postgres-data:
