@@ -126,6 +126,6 @@ jobs:
             export POSTGRES_USER=${{ vars.POSTGRES_USER }}
             export POSTGRES_PASSWORD=${{ vars.POSTGRES_PASSWORD }}
             export RIOT_API_KEY=${{ vars.RIOT_API_KEY }}
-            cd nest 
+            cd $HOME/nest 
             docker compose -f docker-compose.yml up --build -d
             '
