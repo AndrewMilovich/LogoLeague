@@ -1,40 +1,20 @@
-name: Deploy-application-CI-CD
+name: LogoLeague-CI-CD
 run-name: Deploy pipeline with commit sha ${{ github.sha }} started by ${{ github.actor }}
 
 on:
   workflow_dispatch:
-    inputs:
-      runner:
-        description: "Env to run"
-        required: true
-        type: choice
-        default: "ubuntu-20.04"
-        options:
-          - "ubuntu-20.04"
-          - "self-hosted"
   push:
-    paths:
-      - "frontend/**"
-      - "nginx/**"
-      - "app/**"
-  pull_request:
-    paths:
-      - "frontend/**"
-      - "nginx/**"
-      - "app/**"
-
+    branches:
+     [-main,-develop]
 env:
-  AWS_REGION: "eu-central-1"
-  FE_ECR_REPOSITORY: "fe_devops"
-  BE_ECR_REPOSITORY: "be_devops"
-  NGINX_ECR_REPOSITORY: "nginx_devops"
+  AWS_REGION: "eu-north-1"
   PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Private key that we created on ec2
   USER_NAME: ${{ secrets.USER_NAME }} # User name of the ec2 user.
   HOSTNAME: ${{ vars.SSH_HOST }} # Elastic IP or IP of EC2
 
 jobs:
   Deploy_Docker_compose:
-    runs-on: ${{ inputs.runner || 'ubuntu-20.04' }}
+    runs-on: 'ubuntu-20.04'
 
     steps:
       - name: Checkout repo
@@ -58,6 +38,12 @@ jobs:
             echo "File '$HOME/.ssh/known_hosts' created."           
           fi
 
+      - name: Make zip with all repo files
+        run: |
+          sudo apt-get update  
+          sudo apt-get install -y zip
+          zip -r nest.zip  .
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -75,16 +61,18 @@ jobs:
             echo "EC2 host exists in the $HOME/.ssh/known_hosts"
           fi
 
-      # - name: Copy docker-compose-prod.yml to EC2
-      #   run: |
-      #     if [ -e "$HOME/.ssh/private_key" ]; then
-      #       echo "File '$HOME/.ssh/private_key' already exists."
-      #     else
-      #       touch $HOME/.ssh/private_key
-      #       echo "File '$HOME/.ssh/private_key' created."           
-      #     fi
-      #     echo "${{ env.PRIVATE_KEY }}" > $HOME/.ssh/private_key && chmod 600 $HOME/.ssh/private_key
-      #     scp -i $HOME/.ssh/private_key docker-compose-prod.yml ${{ env.USER_NAME }}@${{ env.HOSTNAME }}:/home/${{ env.USER_NAME }}
+      - name: Copy repo zip-file to EC2
+        run: |
+          sudo apt-get update  
+          sudo apt-get install -y unzip
+          if [ -e "$HOME/.ssh/private_key" ]; then
+            echo "File '$HOME/.ssh/private_key' already exists."
+          else
+            touch $HOME/.ssh/private_key
+            echo "File '$HOME/.ssh/private_key' created."           
+          fi
+          echo "${{ env.PRIVATE_KEY }}" > $HOME/.ssh/private_key && chmod 600 $HOME/.ssh/private_key
+          scp -i $HOME/.ssh/private_key nest.zip ${{ env.USER_NAME }}@${{ env.HOSTNAME }}:/home/${{ env.USER_NAME }}
 
       - name: Connect via ssh to EC2 and install docker/docker-compose
         run: | # Connect to EC2
@@ -115,7 +103,6 @@ jobs:
       - name: Install AWS CLI
         run: |
           ssh -i $HOME/.ssh/private_key ${{ env.USER_NAME }}@${{ env.HOSTNAME }} '
-
           sudo apt-get install unzip
           if [ -x "$(command -v aws)" ]; then
             echo "AWSCLI is installed."
@@ -130,23 +117,14 @@ jobs:
       - name: Send secrets and variables to EC2 and run docker compose
         run: |
           ssh -i $HOME/.ssh/private_key ${{ env.USER_NAME }}@${{ env.HOSTNAME }} '
-
-            export ECR_REGISTRY=${{ env.ECR_REGISTRY }}
-            export BE_ECR_REPOSITORY=${{ env.BE_ECR_REPOSITORY }}
-            export NGINX_ECR_REPOSITORY=${{ env.NGINX_ECR_REPOSITORY }}
-            export FE_ECR_REPOSITORY=${{ env.FE_ECR_REPOSITORY }}
-            export POSTGRES_HOST_AUTH_METHOD=${{ vars.POSTGRES_HOST_AUTH_METHOD }}
-            export APP_PORT=${{ vars.APP_PORT }}
-            export NGINX_PORT=${{ vars.NGINX_PORT }}
-            export POSTGRES_PORT=${{ vars.POSTGRES_PORT }}
-            export FRONTEND_PORT=${{ vars.FRONTEND_PORT }}
-            export DB_ENDPOINT=${{ vars.DB_ENDPOINT }}
-            export DB_USER=${{ secrets.DB_USER }}
-            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            export DB_NAME=${{ secrets.DB_NAME }}
-            export AWS_REGION=${{ env.AWS_REGION }}
-
-            aws ecr get-login-password --region ${{ env.AWS_REGION }}| docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
-
-            docker compose -f docker-compose-prod.yml up --build -d
+            export PORT=${{ env.PORT }}
+            export DB_TYPE=${{ env.DB_TYPE }}
+            export DB_HOST=${{ env.DB_HOST }}
+            export DB_PORT=${{ env.DB_PORT }}
+            export POSTGRES_DB=${{ env.POSTGRES_DB }}
+            export POSTGRES_USER=${{ env.POSTGRES_USER }}
+            export POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
+            export RIOT_API_KEY=${{ env.RIOT_API_KEY }}
+            cd nest 
+            docker compose -f docker-compose.yml up --build -d
             '
