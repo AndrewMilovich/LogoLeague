@@ -126,6 +126,12 @@ jobs:
             export POSTGRES_USER=${{ vars.POSTGRES_USER }}
             export POSTGRES_PASSWORD=${{ vars.POSTGRES_PASSWORD }}
             export RIOT_API_KEY=${{ vars.RIOT_API_KEY }}
+            if [ -d "$HOME/nest" ]; then
+            rm -rf $HOME/nest
+            echo "Directory '$HOME/nest' deleted."
+            else
+            echo "Directory '$HOME/nest' does not exist."
+            fi
             unzip nest.zip -d nest
             cd nest
             docker compose -f docker-compose.yml up --build -d
