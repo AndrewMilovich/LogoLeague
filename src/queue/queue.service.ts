@@ -13,6 +13,7 @@ import { LeagueResponse } from '../types/league';
 import { multithreading } from '../utils/multithreading';
 import { createQueueData } from '../utils/queue';
 import { SummonerService } from '../summoner/summoner.service';
+import { handlerError } from '../utils/error';
 
 @Injectable()
 export class QueueService {
@@ -73,7 +74,7 @@ export class QueueService {
 
       return updatedQueues;
     } catch (e) {
-      return e;
+      handlerError(e);
     }
   }
 
@@ -83,7 +84,7 @@ export class QueueService {
       await this.queueRepository.save(newQueue);
       return newQueue;
     } catch (e) {
-      return e;
+      handlerError(e);
     }
   }
 
@@ -97,7 +98,7 @@ export class QueueService {
       const dataToUpdate = { ...existedQueue, queue };
       return this.queueRepository.save(dataToUpdate);
     } catch (e) {
-      return e;
+      handlerError(e);
     }
   }
 }

@@ -11,6 +11,7 @@ import { Summoner as SummonerEntity } from '../summoner/entities/summoner.entity
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
+import { handlerError } from '../utils/error';
 
 @Injectable()
 export class MatchService {
@@ -62,7 +63,7 @@ export class MatchService {
 
       return matches;
     } catch (e) {
-      return e;
+      return handlerError(e);
     }
   }
 
@@ -121,7 +122,7 @@ export class MatchService {
 
       return matchesResult.filter((match) => match !== null);
     } catch (e) {
-      return e;
+      return handlerError(e);
     }
   }
 
@@ -171,7 +172,7 @@ export class MatchService {
         relations: ['summoner'],
       });
     } catch (e) {
-      return e;
+      return handlerError(e);
     }
   }
 

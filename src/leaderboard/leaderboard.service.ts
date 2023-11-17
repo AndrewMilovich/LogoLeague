@@ -6,6 +6,7 @@ import { UpdateLeaderboardDto } from './dto/update-leaderboard-dto';
 import { Summoner as SummonerEntity } from '../summoner/entities/summoner.entity';
 import { GetUserInLeaderboardDto } from './dto/get-user-in-leaderboard-dto';
 import { LeaderboardResponse } from '../types/leaderboard';
+import { handlerError } from '../utils/error';
 
 @Injectable()
 export class LeaderboardService {
@@ -37,7 +38,7 @@ export class LeaderboardService {
         where: { summoner: { id: summonerId } },
       });
     } catch (e) {
-      return e;
+      return handlerError(e);
     }
   }
 
@@ -72,7 +73,7 @@ export class LeaderboardService {
         winRate: { top: winRateIndex + 1 },
       };
     } catch (e) {
-      return e;
+      return handlerError(e);
     }
   }
 }

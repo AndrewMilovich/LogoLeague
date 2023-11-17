@@ -14,6 +14,7 @@ import { Repository } from 'typeorm';
 import { QueueService } from '../queue/queue.service';
 import { queues } from '../utils/app';
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
+import { handlerError } from '../utils/error';
 
 @Injectable()
 export class SummonerService {
@@ -65,7 +66,7 @@ export class SummonerService {
         relations: ['queues'],
       });
     } catch (e) {
-      return e;
+      handlerError(e);
     }
   }
 
@@ -115,7 +116,7 @@ export class SummonerService {
 
       return summonerResult;
     } catch (e) {
-      return e;
+      handlerError(e);
     }
   }
 
@@ -130,7 +131,7 @@ export class SummonerService {
 
       return newSummoner;
     } catch (e) {
-      return e;
+      handlerError(e);
     }
   }
 
@@ -147,7 +148,7 @@ export class SummonerService {
       const dataToUpdate = { ...existedSummoner, ...summoner };
       return this.summonerRepository.save(dataToUpdate);
     } catch (e) {
-      return e;
+      handlerError(e);
     }
   }
 }

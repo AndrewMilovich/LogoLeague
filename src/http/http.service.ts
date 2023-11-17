@@ -1,6 +1,7 @@
 import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import * as process from 'process';
+import { handlerError } from '../utils/error';
 
 @Injectable()
 export class HttpService {
@@ -17,6 +18,7 @@ export class HttpService {
         return response.data;
       },
       function (error) {
+        handlerError(error);
         if (error.response) {
           throw new HttpException(
             error.response.data.status.message,
