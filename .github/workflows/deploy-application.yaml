@@ -5,7 +5,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-     [-main,-develop]
+      - main
+      - develop
 env:
   AWS_REGION: "eu-north-1"
   PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Private key that we created on ec2
@@ -117,14 +118,14 @@ jobs:
       - name: Send secrets and variables to EC2 and run docker compose
         run: |
           ssh -i $HOME/.ssh/private_key ${{ env.USER_NAME }}@${{ env.HOSTNAME }} '
-            export PORT=${{ env.PORT }}
-            export DB_TYPE=${{ env.DB_TYPE }}
-            export DB_HOST=${{ env.DB_HOST }}
-            export DB_PORT=${{ env.DB_PORT }}
-            export POSTGRES_DB=${{ env.POSTGRES_DB }}
-            export POSTGRES_USER=${{ env.POSTGRES_USER }}
-            export POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
-            export RIOT_API_KEY=${{ env.RIOT_API_KEY }}
+            export PORT=${{ vars.PORT }}
+            export DB_TYPE=${{ vars.DB_TYPE }}
+            export DB_HOST=${{ vars.DB_HOST }}
+            export DB_PORT=${{ vars.DB_PORT }}
+            export POSTGRES_DB=${{ vars.POSTGRES_DB }}
+            export POSTGRES_USER=${{ vars.POSTGRES_USER }}
+            export POSTGRES_PASSWORD=${{ vars.POSTGRES_PASSWORD }}
+            export RIOT_API_KEY=${{ vars.RIOT_API_KEY }}
             cd nest 
             docker compose -f docker-compose.yml up --build -d
             '
