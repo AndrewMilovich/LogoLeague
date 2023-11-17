@@ -76,7 +76,7 @@ export const getSummonerInfoFromMatch = (
     kda,
     visionScore: +playerInfo.visionScore,
     csPerMin: Math.round(
-      playerInfo.totalMinionsKilled / (match.info.gameDuration / 60000),
+      playerInfo.totalMinionsKilled / (match.info.gameDuration / 60),
     ),
     win: !!playerInfo.win,
   };

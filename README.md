@@ -32,6 +32,24 @@
 $ npm install
 ```
 
+## Docker
+```bash
+#start app in docker
+$ npm run rebuild:start:docker
+```
+
+## Migrations
+```bash
+# generate migration
+$ docker exec app npm run migration:generate db/migrations/${name}
+
+# run migration
+$ docker exec app npm run migration:run
+
+# revert migration
+$ docker exec app npm run migration:revert
+```
+
 ## Running the app
 
 ```bash

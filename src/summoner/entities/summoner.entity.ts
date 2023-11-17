@@ -2,12 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Match } from '../../match/entities/match.entity';
 import { QueueEntity } from '../../queue/entities/queue.entity';
+import { Leaderboard } from '../../leaderboard/entities/leaderboard.entity';
 
 @Entity()
 export class Summoner {
@@ -62,4 +65,7 @@ export class Summoner {
 
   @OneToMany(() => QueueEntity, (queue) => queue.summoner, { nullable: true })
   queues: QueueEntity[];
+
+  @OneToOne(() => Leaderboard, (leaderboard) => leaderboard.summoner)
+  leaderboard: Leaderboard;
 }

@@ -9,14 +9,16 @@ import { QueueEntity } from './entities/queue.entity';
 import { HttpService } from '../http/http.service';
 import { SummonerService } from '../summoner/summoner.service';
 import { SummonerModule } from '../summoner/summoner.module';
+import { Leaderboard } from '../leaderboard/entities/leaderboard.entity';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 
 @Module({
   imports: [
     HttpModule,
     forwardRef(() => SummonerModule),
-    TypeOrmModule.forFeature([Summoner, Match, QueueEntity]),
+    TypeOrmModule.forFeature([Summoner, Match, QueueEntity, Leaderboard]),
   ],
   controllers: [QueueController],
-  providers: [QueueService, HttpService, SummonerService],
+  providers: [QueueService, HttpService, SummonerService, LeaderboardService],
 })
 export class QueueModule {}

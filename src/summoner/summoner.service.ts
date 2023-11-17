@@ -13,11 +13,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { QueueService } from '../queue/queue.service';
 import { queues } from '../utils/app';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 
 @Injectable()
 export class SummonerService {
   constructor(
     private readonly httpService: HttpService,
+    private readonly leaderboardService: LeaderboardService,
     @Inject(forwardRef(() => QueueService))
     private readonly queueService: QueueService,
     @InjectRepository(SummonerEntity)
@@ -69,8 +71,8 @@ export class SummonerService {
 
   async getSummonerSummary(
     params: GetSummonerByNameDto,
-    query?: getSummonerSummaryQueryDto,
-  ) {
+    query: getSummonerSummaryQueryDto,
+  ): Promise<SummonerEntity> {
     try {
       const { name, region } = params;
 
@@ -95,6 +97,22 @@ export class SummonerService {
           leaguePoints: summoner.queues.map((q) => q.leaguePoints),
         };
       }
+
+      const newLeaderboardData = {
+        leaguePoints: summoner.queues.find((q) => q.queueId === +query?.queue)
+          .leaguePoints,
+        winRate: parseFloat(
+          ((summoner.wins * 100) / (summoner.wins + summoner.losses)).toFixed(
+            0,
+          ),
+        ),
+      };
+
+      await this.leaderboardService.updateLeaderboard(
+        summoner.id,
+        newLeaderboardData,
+      );
+
       return summonerResult;
     } catch (e) {
       return e;
@@ -128,32 +146,6 @@ export class SummonerService {
 
       const dataToUpdate = { ...existedSummoner, ...summoner };
       return this.summonerRepository.save(dataToUpdate);
-    } catch (e) {
-      return e;
-    }
-  }
-
-  async findSummonerById(puuid: string): Promise<SummonerEntity> {
-    try {
-      const summoner = await this.summonerRepository.findOne({
-        where: { puuid },
-      });
-      if (!summoner)
-        throw new BadRequestException('SummonerResponse not found');
-      return summoner;
-    } catch (e) {
-      return e;
-    }
-  }
-
-  async findSummonerByName(name: string): Promise<SummonerEntity> {
-    try {
-      const summoner = await this.summonerRepository.findOne({
-        where: { name },
-      });
-      if (!summoner)
-        throw new BadRequestException("Can't find summoner by name");
-      return summoner;
     } catch (e) {
       return e;
     }

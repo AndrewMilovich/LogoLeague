@@ -7,6 +7,7 @@ import { SummonerModule } from './summoner/summoner.module';
 import { MatchModule } from './match/match.module';
 import { HttpModule } from './http/http.module';
 import { QueueModule } from './queue/queue.module';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { QueueModule } from './queue/queue.module';
     MatchModule,
     HttpModule,
     QueueModule,
+    LeaderboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

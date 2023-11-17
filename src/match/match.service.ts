@@ -5,17 +5,19 @@ import { GetSummonerByNameDto } from '../summoner/dto/get-summoner-by-name-dto';
 import { SummonerService } from '../summoner/summoner.service';
 import { getRegionTypeByValue, getSummonerInfoFromMatch } from '../utils/app';
 import { multithreading } from '../utils/multithreading';
-import { MatchResponse, Participant } from '../types/matchResponse';
+import { MatchResponse } from '../types/matchResponse';
 import { Match as MatchEntity } from './entities/match.entity';
 import { Summoner as SummonerEntity } from '../summoner/entities/summoner.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 
 @Injectable()
 export class MatchService {
   constructor(
     private readonly httpService: HttpService,
     private readonly summonerService: SummonerService,
+    private readonly leaderboardService: LeaderboardService,
     @InjectRepository(MatchEntity)
     private matchRepository: Repository<MatchEntity>,
     @InjectRepository(SummonerEntity)
@@ -35,6 +37,22 @@ export class MatchService {
         { queue: pagination.queue },
       );
       if (!summoner) throw new BadRequestException('Summoner not found');
+
+      const newLeaderboardData = {
+        leaguePoints: summoner.queues.find(
+          (q) => q.queueId === +pagination.queue,
+        ).leaguePoints,
+        winRate: parseFloat(
+          ((summoner.wins * 100) / (summoner.wins + summoner.losses)).toFixed(
+            0,
+          ),
+        ),
+      };
+
+      await this.leaderboardService.updateLeaderboard(
+        summoner.id,
+        newLeaderboardData,
+      );
 
       const matches = await this.getRecentSummonerMatchesInfoByPuuid(
         summoner,
