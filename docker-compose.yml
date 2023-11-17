@@ -1,0 +1,33 @@
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    ports:
+      - '3001:3001'
+    depends_on:
+      - postgres
+    networks:
+      - dev-networks
+    env_file:
+      - .env
+
+  postgres:
+    image: postgres:13-alpine
+    container_name: postgres-db
+    volumes:
+      - dev-postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - dev-networks
+    env_file:
+      - .env
+
+volumes:
+  dev-postgres-data:
+
+networks:
+  dev-networks:
